@@ -2,8 +2,6 @@
 
 **[ 🇺🇸 English Version ](#english)** | **[ 🇷🇺 Русская версия ](#russian)**
 
----
-
 <a name="english"></a>
 ## 🇺🇸 English Description
 
@@ -63,8 +61,6 @@ Here is all you need to create a functional app:
 *   `app.add_spacer(height=20)`: Adds vertical space.
 *   `app.show()`: Starts the application loop.
 
----
-
 <a name="russian"></a>
 ## 🇷🇺 Описание на русском
 
@@ -123,8 +119,6 @@ Pixelthon — это библиотека Python для создания сов�
 *   `app.add_button(text, action=None)`: Добавляет кнопку. `action` — имя функции для вызова.
 *   `app.add_spacer(height=20)`: Добавляет пустой отступ по вертикали.
 *   `app.show()`: Запускает цикл приложения.
-
----
 
 ## 📄 License / Лицензия
 
