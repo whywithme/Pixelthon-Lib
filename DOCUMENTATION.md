@@ -1,221 +1,370 @@
-# Pixelthon Full Documentation 📘
+# Pixelthon Framework Documentation 📘
+
+**Current Version:** 0.1.0
+**License:** MIT
 
 **[ 🇺🇸 English Documentation ](#english)** | **[ 🇷🇺 Русская документация ](#russian)**
 
 ---
 
 <a name="english"></a>
-## 🇺🇸 Pixelthon API Reference
+# 🇺🇸 Pixelthon - English Documentation
 
-Pixelthon is designed to be a wrapper around Python's `tkinter`. It abstracts away the layout management (`pack`/`grid`) and styling configurations, providing a clean, declarative API.
+## 1. Introduction
 
-### 1. Main Class: `PixelWindow`
+Pixelthon is a high-level wrapper around Python's standard `tkinter` library. Its primary goal is to lower the barrier to entry for creating Graphical User Interfaces (GUIs) while enforcing modern design principles by default.
 
-The core of the library. It represents the application window.
-
-#### Initialization
-
-    app = PixelWindow(title="My App", width=500, height=600)
-
-**Parameters:**
-*   `title` (str): The text displayed in the window title bar.
-*   `width` (int): The initial width of the window in pixels. Default is 500.
-*   `height` (int): The initial height of the window in pixels. Default is 600.
-
-**Behavior:**
-*   Automatically enables High DPI awareness on Windows systems (prevents blurry text).
-*   Applies the dark theme (`#1e1e2e` background).
-*   Creates a main container frame with padding.
+**Core Philosophies:**
+1.  **Declarative Syntax:** The user defines *what* they want (Input, Button), not *how* to place it (Grid, Pack coordinates).
+2.  **Modern Defaults:** Dark mode, padding, and High DPI scaling are applied automatically.
+3.  **Linear Layout:** The library utilizes a vertical stack layout strategy, ideal for forms, installers, and utility tools.
 
 ---
 
-### 2. Widget Methods
+## 2. Installation & Setup
 
-These methods are called on the `PixelWindow` instance to add elements to the screen. Elements are added vertically, from top to bottom.
+### 2.1. Installing from PyPI (Wheel)
+If you have the compiled `.whl` file:
+
+```
+    pip install dist/pixelthon-0.1.0-py3-none-any.whl
+```
+
+### 2.2. Developer Mode
+If you are modifying the library source code, install it in editable mode. Navigate to the folder containing `pyproject.toml` and run:
+
+```
+    pip install -e .
+```
+
+### 2.3. Requirements
+*   Python 3.7 or higher.
+*   Standard libraries: `tkinter`, `ctypes` (Windows only).
+*   OS: Windows 10/11 (Optimized), macOS, Linux.
+
+---
+
+## 3. Architecture & Internal Logic
+
+Pixelthon abstracts the `tkinter.Tk` root window and the `ttk` styling engine.
+
+### The Layout Engine
+Instead of exposing `grid()` or `pack()`, Pixelthon creates a central container frame (`self.container`) with padding. All widgets added via `add_*` methods are packed into this container using `pack(fill='x')`. This ensures responsive width resizing while maintaining a vertical flow.
+
+### High DPI Awareness
+On initialization, the library attempts to call `ctypes.windll.shcore.SetProcessDpiAwareness(1)`.
+*   **On Windows:** This prevents blurred text on scaling > 100%.
+*   **On Linux/macOS:** This block is safely ignored (caught by try/except).
+
+---
+
+## 4. API Reference
+
+### 4.1. The Main Class: `PixelWindow`
+
+```python
+    from pixelthon import PixelWindow
+    app = PixelWindow(title="App Name", width=500, height=600)
+```
+
+**Arguments:**
+*   `title` (str): Sets the window title in the OS taskbar/header.
+*   `width` (int): Initial window width in pixels.
+*   `height` (int): Initial window height in pixels.
+
+---
+
+### 4.2. UI Components (Widgets)
+
+All methods below are members of the `PixelWindow` class.
 
 #### `add_label(text, size=12, bold=False)`
-Adds a text label to the window.
+Renders a text block.
 
-*   **Parameters:**
-    *   `text` (str): The string to display.
-    *   `size` (int, optional): Font size. Default: 12.
-    *   `bold` (bool, optional): If `True`, applies bold font weight. Default: `False`.
-*   **Returns:** `tkinter.ttk.Label` object.
-*   **Usage:** Use for headers, instructions, or static text.
+*   **Arguments:**
+    *   `text` (str): The content string.
+    *   `size` (int): Font size (Segoe UI). Defaults to 12.
+    *   `bold` (bool): Toggle bold font weight.
+*   **Returns:** `tkinter.ttk.Label` instance.
+*   **Styling:** Uses the background color `#1e1e2e` and foreground `#cdd6f4`.
 
 #### `add_input(placeholder="")`
-Adds a single-line text entry field.
+Renders a styled text entry field.
 
-*   **Parameters:**
-    *   `placeholder` (str, optional): Currently reserved for future updates (custom placeholder logic).
-*   **Returns:** `tkinter.ttk.Entry` object.
-*   **Important:** You must assign this return value to a variable to retrieve user input later.
-*   **Retrieving Data:** Call `.get()` on the returned object.
-    
-    Example:
-    
-        user_input = app.add_input()
-        print(user_input.get())
+*   **Arguments:**
+    *   `placeholder` (str): Reserved for future placeholder implementation.
+*   **Returns:** `tkinter.ttk.Entry` instance.
+*   **Technical Note:** To access the data entered by the user, you must store the return value of this method and call `.get()` on it later.
 
 #### `add_button(text, action=None)`
-Adds a full-width styled button.
+Renders a CTA (Call To Action) button.
 
-*   **Parameters:**
-    *   `text` (str): The text displayed on the button.
-    *   `action` (callable, optional): The function to be executed when the button is clicked. Pass the function name **without parentheses**.
-*   **Returns:** `tkinter.ttk.Button` object.
+*   **Arguments:**
+    *   `text` (str): Button label.
+    *   `action` (callable): A reference to a Python function. Do NOT call the function (e.g., use `my_func`, not `my_func()`).
+*   **Returns:** `tkinter.ttk.Button` instance.
+*   **Styling:** Accent color `#89b4fa`, hover color `#45475a`. Cursor changes to `hand2` on hover.
 
 #### `add_spacer(height=20)`
-Adds an invisible block to create vertical space between elements.
+Renders an invisible frame to push content apart.
 
-*   **Parameters:**
-    *   `height` (int, optional): The height of the empty space in pixels. Default: 20.
-*   **Returns:** `tkinter.Frame` object (transparent).
-
----
-
-### 3. Execution Control
+*   **Arguments:**
+    *   `height` (int): Height in pixels.
+*   **Returns:** `tkinter.Frame` instance.
 
 #### `show()`
-Starts the application's main event loop.
+Starts the `mainloop`.
 
-*   **Parameters:** None.
-*   **Description:** This method blocks the execution of the script until the window is closed by the user. It must be the last line of your GUI setup code.
+*   **Description:** Transfers control to the GUI event loop. Code after this method will not execute until the window is closed.
 
 ---
 
-### 4. Full Example
+## 5. Design System (Theme)
 
+Pixelthon uses a hardcoded "Cosmic Dark" palette defined in `styles.py`.
+
+| Component | Color Hex | Description |
+| :--- | :--- | :--- |
+| **Background** | `#1e1e2e` | Deep grey/black |
+| **Text** | `#cdd6f4` | Soft white |
+| **Accent** | `#89b4fa` | Light Blue (Buttons) |
+| **Input Bg** | `#313244` | Lighter grey for fields |
+| **Success** | `#a6e3a1` | Green (reserved) |
+
+**Fonts:**
+The library prioritizes **Segoe UI** (Windows standard). If unavailable on Linux/Mac, Tkinter falls back to the system default sans-serif font.
+
+---
+
+## 6. Comprehensive Example
+
+```python
     from pixelthon import PixelWindow
 
-    def calculate():
-        # Get values from input fields
-        val = entry.get()
-        print(f"Processing: {val}")
+    # 1. Define Logic
+    def submit_form():
+        user = entry_user.get()
+        pwd = entry_pass.get()
+        
+        if user and pwd:
+            print(f"Logging in as {user}...")
+            # Here you would add your backend logic
+        else:
+            print("Error: Fields cannot be empty")
 
-    # Initialize
-    app = PixelWindow("Documentation Example", 400, 300)
+    # 2. Init Window
+    app = PixelWindow("Enterprise Login", 400, 500)
 
-    # Header
-    app.add_label("Data Processor", size=18, bold=True)
+    # 3. Build UI
+    app.add_label("Welcome Back", size=24, bold=True)
+    app.add_label("Please sign in to continue")
     
-    # Form
-    app.add_label("Enter Value:")
-    entry = app.add_input()
+    app.add_spacer(30)
     
-    # Spacing and Action
-    app.add_spacer(15)
-    app.add_button("Run Process", action=calculate)
+    app.add_label("Username")
+    entry_user = app.add_input()
+    
+    app.add_label("Password")
+    entry_pass = app.add_input() # Note: In real apps, use show="*" for passwords
+    
+    app.add_spacer(30)
+    
+    app.add_button("Secure Login", action=submit_form)
 
-    # Start
+    # 4. Run
     app.show()
+```
+
+---
+
+## 7. Troubleshooting
+
+**Error: `ImportError: cannot import name 'PixelWindow'`**
+*   **Cause:** The library is installed incorrectly or `__init__.py` is empty.
+*   **Fix:** Ensure `src/pixelthon/__init__.py` contains `from .core import PixelWindow` and run `pip install .` again.
+
+**Issue: Text looks tiny on 4K screens**
+*   **Cause:** DPI awareness failed.
+*   **Fix:** Ensure you are running Python 3.7+ on Windows 10/11. On Linux, check your generic Tkinter scaling settings (`export TK_LIBRARY` etc).
 
 ---
 ---
 
 <a name="russian"></a>
-## 🇷🇺 Документация Pixelthon API
+# 🇷🇺 Pixelthon - Русская документация
 
-Pixelthon разработана как обертка над стандартной библиотекой `tkinter`. Она скрывает сложность управления макетами (`pack`/`grid`) и настройку стилей, предоставляя чистый, декларативный API.
+## 1. Введение
 
-### 1. Основной класс: `PixelWindow`
+Pixelthon — это высокоуровневая обертка над стандартной библиотекой Python `tkinter`. Основная цель — снизить порог входа для создания графических интерфейсов (GUI), предоставляя современный дизайн по умолчанию.
 
-Ядро библиотеки. Представляет собой окно приложения.
-
-#### Инициализация
-
-    app = PixelWindow(title="Мое приложение", width=500, height=600)
-
-**Параметры:**
-*   `title` (str): Текст, отображаемый в заголовке окна.
-*   `width` (int): Начальная ширина окна в пикселях. По умолчанию 500.
-*   `height` (int): Начальная высота окна в пикселях. По умолчанию 600.
-
-**Поведение:**
-*   Автоматически включает поддержку High DPI на Windows (предотвращает размытость текста).
-*   Применяет темную тему (фон `#1e1e2e`).
-*   Создает главный контейнер с внутренними отступами.
+**Философия библиотеки:**
+1.  **Декларативный синтаксис:** Пользователь определяет *что* он хочет создать (Поле ввода, Кнопку), а не *как* это разместить (координаты Grid, Pack).
+2.  **Современные стандарты:** Тёмная тема, отступы и поддержка высокого разрешения (High DPI) включены автоматически.
+3.  **Линейный макет:** Библиотека использует стратегию вертикального стека (элементы идут друг за другом сверху вниз), что идеально подходит для форм, инсталлеров и утилит.
 
 ---
 
-### 2. Методы добавления виджетов
+## 2. Установка и Настройка
 
-Эти методы вызываются у экземпляра `PixelWindow` для добавления элементов на экран. Элементы добавляются вертикально, сверху вниз.
+### 2.1. Установка из файла (Wheel)
+Если у вас есть скомпилированный файл `.whl`:
+
+```
+    pip install dist/pixelthon-0.1.0-py3-none-any.whl
+```
+
+### 2.2. Режим разработчика
+Если вы меняете исходный код библиотеки, установите её в редактируемом режиме. Перейдите в папку с `pyproject.toml` и выполните:
+
+```
+    pip install -e .
+```
+
+### 2.3. Требования
+*   Python 3.7 или выше.
+*   Стандартные библиотеки: `tkinter`, `ctypes` (только для Windows).
+*   ОС: Windows 10/11 (Оптимизировано), macOS, Linux.
+
+---
+
+## 3. Архитектура и Внутренняя логика
+
+Pixelthon абстрагирует корневое окно `tkinter.Tk` и движок стилизации `ttk`.
+
+### Движок макетов (Layout Engine)
+Вместо того чтобы заставлять пользователя учить `grid()` или `pack()`, Pixelthon создает центральный фрейм-контейнер (`self.container`) с внутренними отступами. Все виджеты, добавляемые через методы `add_*`, упаковываются в этот контейнер, используя `pack(fill='x')`. Это гарантирует, что элементы будут растягиваться по ширине окна, сохраняя вертикальный поток.
+
+### Поддержка High DPI (Четкость)
+При инициализации библиотека пытается вызвать системную функцию Windows: `ctypes.windll.shcore.SetProcessDpiAwareness(1)`.
+*   **На Windows:** Это предотвращает размытие текста при масштабировании экрана > 100%.
+*   **На Linux/macOS:** Этот блок игнорируется (обрабатывается через try/except), используется стандартный рендеринг системы.
+
+---
+
+## 4. Справочник API
+
+### 4.1. Главный класс: `PixelWindow`
+
+```python
+    from pixelthon import PixelWindow
+    app = PixelWindow(title="Имя приложения", width=500, height=600)
+```
+
+**Аргументы:**
+*   `title` (str): Устанавливает заголовок окна в панели задач ОС.
+*   `width` (int): Начальная ширина окна в пикселях.
+*   `height` (int): Начальная высота окна в пикселях.
+
+---
+
+### 4.2. Компоненты UI (Виджеты)
+
+Все методы ниже вызываются у экземпляра класса `PixelWindow`.
 
 #### `add_label(text, size=12, bold=False)`
-Добавляет текстовую метку (лейбл) в окно.
+Отрисовывает блок текста.
 
-*   **Параметры:**
-    *   `text` (str): Текст для отображения.
-    *   `size` (int, необязательно): Размер шрифта. По умолчанию: 12.
-    *   `bold` (bool, необязательно): Если `True`, делает шрифт жирным. По умолчанию: `False`.
-*   **Возвращает:** Объект `tkinter.ttk.Label`.
-*   **Использование:** Используется для заголовков, инструкций или статического текста.
+*   **Аргументы:**
+    *   `text` (str): Содержимое строки.
+    *   `size` (int): Размер шрифта (используется Segoe UI). По умолчанию 12.
+    *   `bold` (bool): Переключатель жирного начертания.
+*   **Возвращает:** Экземпляр `tkinter.ttk.Label`.
+*   **Стиль:** Использует цвет фона `#1e1e2e` и цвет текста `#cdd6f4`.
 
 #### `add_input(placeholder="")`
-Добавляет однострочное поле для ввода текста.
+Отрисовывает стилизованное поле ввода текста.
 
-*   **Параметры:**
-    *   `placeholder` (str, необязательно): Зарезервировано для будущих обновлений (плейсхолдеры).
-*   **Возвращает:** Объект `tkinter.ttk.Entry`.
-*   **Важно:** Вы должны сохранить возвращаемое значение в переменную, чтобы позже получить введенные данные.
-*   **Получение данных:** Вызовите метод `.get()` у сохраненного объекта.
-    
-    Пример:
-    
-        user_input = app.add_input()
-        # Позже, при нажатии кнопки:
-        print(user_input.get())
+*   **Аргументы:**
+    *   `placeholder` (str): Зарезервировано для будущей реализации подсказок внутри поля.
+*   **Возвращает:** Экземпляр `tkinter.ttk.Entry`.
+*   **Техническое примечание:** Чтобы получить данные, введенные пользователем, вы должны сохранить возвращаемое значение этого метода в переменную, а затем вызвать у неё `.get()`.
 
 #### `add_button(text, action=None)`
-Добавляет стилизованную кнопку во всю ширину контейнера.
+Отрисовывает кнопку действия (CTA).
 
-*   **Параметры:**
-    *   `text` (str): Текст на кнопке.
-    *   `action` (callable, необязательно): Функция, которая будет выполнена при клике. Передавайте имя функции **без скобок**.
-*   **Возвращает:** Объект `tkinter.ttk.Button`.
+*   **Аргументы:**
+    *   `text` (str): Надпись на кнопке.
+    *   `action` (callable): Ссылка на Python-функцию. НЕ вызывайте функцию (передавайте `my_func`, а не `my_func()`).
+*   **Возвращает:** Экземпляр `tkinter.ttk.Button`.
+*   **Стиль:** Акцентный цвет `#89b4fa`, при наведении `#45475a`. Курсор меняется на "руку" (hand2).
 
 #### `add_spacer(height=20)`
-Добавляет невидимый блок для создания вертикального пространства между элементами.
+Отрисовывает невидимый блок для разделения контента.
 
-*   **Параметры:**
-    *   `height` (int, необязательно): Высота пустого пространства в пикселях. По умолчанию: 20.
-*   **Возвращает:** Объект `tkinter.Frame` (прозрачный).
-
----
-
-### 3. Управление выполнением
+*   **Аргументы:**
+    *   `height` (int): Высота в пикселях.
+*   **Возвращает:** Экземпляр `tkinter.Frame`.
 
 #### `show()`
-Запускает главный цикл событий приложения.
+Запускает `mainloop`.
 
-*   **Параметры:** Нет.
-*   **Описание:** Этот метод блокирует выполнение скрипта до тех пор, пока окно не будет закрыто пользователем. Это должна быть последняя строка вашего кода настройки интерфейса.
+*   **Описание:** Передает управление циклу событий GUI. Код, написанный после этого метода, не будет выполнен, пока окно не закроется.
 
 ---
 
-### 4. Полный пример
+## 5. Дизайн-система (Тема)
 
+Pixelthon использует жестко заданную палитру "Cosmic Dark", определенную во внутреннем модуле `styles.py`.
+
+| Компонент | HEX Код | Описание |
+| :--- | :--- | :--- |
+| **Фон** | `#1e1e2e` | Глубокий темно-серый/черный |
+| **Текст** | `#cdd6f4` | Мягкий белый |
+| **Акцент** | `#89b4fa` | Светло-синий (Кнопки) |
+| **Фон Input** | `#313244` | Светло-серый для полей |
+| **Успех** | `#a6e3a1` | Зеленый (зарезервировано) |
+
+**Шрифты:**
+Библиотека отдает приоритет **Segoe UI** (стандарт Windows). Если он недоступен (Linux/Mac), Tkinter использует системный шрифт без засечек по умолчанию.
+
+---
+
+## 6. Полный пример использования
+```python
     from pixelthon import PixelWindow
 
-    def calculate():
-        # Получаем значение из поля ввода
-        val = entry.get()
-        print(f"Обработка значения: {val}")
+    # 1. Логика приложения
+    def submit_form():
+        user = entry_user.get()
+        pwd = entry_pass.get()
+        
+        if user and pwd:
+            print(f"Вход выполнен для: {user}")
+            # Здесь могла бы быть ваша логика проверки пароля
+        else:
+            print("Ошибка: Поля не могут быть пустыми")
 
-    # Инициализация
-    app = PixelWindow("Пример документации", 400, 300)
+    # 2. Инициализация окна
+    app = PixelWindow("Корпоративный портал", 400, 500)
 
-    # Заголовок
-    app.add_label("Обработчик данных", size=18, bold=True)
+    # 3. Построение интерфейса
+    app.add_label("С возвращением", size=24, bold=True)
+    app.add_label("Пожалуйста, авторизуйтесь")
     
-    # Форма
-    app.add_label("Введите значение:")
-    entry = app.add_input()
+    app.add_spacer(30)
     
-    # Отступ и Кнопка
-    app.add_spacer(15)
-    app.add_button("Запустить", action=calculate)
+    app.add_label("Имя пользователя")
+    entry_user = app.add_input()
+    
+    app.add_label("Пароль")
+    entry_pass = app.add_input() 
+    # Примечание: В реальных приложениях используйте show="*" для паролей
+    
+    app.add_spacer(30)
+    
+    app.add_button("Безопасный вход", action=submit_form)
 
-    # Старт
+    # 4. Запуск
     app.show()
+```
+---
+
+## 7. Устранение неполадок
+
+**Ошибка: `ImportError: cannot import name 'PixelWindow'`**
+*   **Причина:** Библиотека установлена неправильно, либо файл `__init__.py` пуст.
+*   **Решение:** Убедитесь, что `src/pixelthon/__init__.py` содержит строку `from .core import PixelWindow` и выполните `pip install .` снова.
+
+**Проблема: Текст выглядит очень мелким на 4K экране**
+*   **Причина:** Не сработала High DPI осведомленность.
+*   **Решение:** Убедитесь, что вы используете Python 3.7+ на Windows 10/11. На Linux проверьте настройки масштабирования Tkinter (`export TK_LIBRARY` и т.д.).
