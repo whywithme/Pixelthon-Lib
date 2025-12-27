@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: pixelthon
+Version: 0.1.0
+Summary: Библиотека для создания красивых GUI за секунды
+Author: Ваше Имя
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
